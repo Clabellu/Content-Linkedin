@@ -1,5 +1,7 @@
 import { getDb } from '../config/database.js';
 import { generateLinkedInPost } from './ai/claudeService.js';
+import { generateImage } from './ai/openaiImageService.js';
+import { downloadAndSaveImage } from '../utils/imageUtils.js';
 import { createHash } from 'crypto';
 
 /**
@@ -160,10 +162,87 @@ export function deleteGeneratedContent(id) {
   return { success: true, id };
 }
 
+/**
+ * Generate image for existing content
+ * @param {string} contentId - Generated content ID
+ * @param {Object} options - Image generation options
+ * @returns {Promise<Object>} Updated content with image
+ */
+export async function generateImageForContent(contentId, options = {}) {
+  const db = getDb();
+
+  // Get content from database
+  const content = getGeneratedContentById(contentId);
+
+  if (!content) {
+    throw new Error(`Generated content not found: ${contentId}`);
+  }
+
+  if (!content.imagePrompt) {
+    throw new Error('Content does not have an image prompt');
+  }
+
+  console.log(`\n🎨 Generating image for content: ${contentId}`);
+  console.log(`   Prompt: ${content.imagePrompt.substring(0, 80)}...`);
+
+  try {
+    // Generate image with OpenAI
+    const imageUrl = await generateImage(content.imagePrompt, options);
+
+    // Download and save image locally
+    const localPath = await downloadAndSaveImage(imageUrl, contentId);
+
+    // Update database
+    const updateStmt = db.prepare(`
+      UPDATE GeneratedContent
+      SET imageUrl = ?, updatedAt = ?
+      WHERE id = ?
+    `);
+
+    updateStmt.run(localPath, Date.now(), contentId);
+
+    console.log(`✅ Image generated and saved for content: ${contentId}`);
+
+    // Return updated content
+    return getGeneratedContentById(contentId);
+
+  } catch (error) {
+    console.error(`❌ Failed to generate image:`, error.message);
+    throw error;
+  }
+}
+
+/**
+ * Generate content with image in one call
+ * @param {string} articleId - Article ID
+ * @param {string} tone - Tone for generation
+ * @param {boolean} generateImg - Whether to generate image immediately
+ * @returns {Promise<Object>} Generated content with optional image
+ */
+export async function generateContentWithImage(articleId, tone = 'professional', generateImg = false) {
+  // First generate the text content
+  const content = await generateContentForArticle(articleId, tone);
+
+  // Optionally generate image
+  if (generateImg && content.imagePrompt) {
+    try {
+      console.log(`\n🎨 Generating image immediately...`);
+      return await generateImageForContent(content.id);
+    } catch (error) {
+      console.error(`⚠️  Image generation failed, but text content was saved:`, error.message);
+      return content;
+    }
+  }
+
+  return content;
+}
+
 export default {
   generateContentForArticle,
   getAllGeneratedContents,
   getGeneratedContentById,
   updateGeneratedContent,
-  deleteGeneratedContent
+  deleteGeneratedContent,
+  generateImageForContent,
+  generateContentWithImage
 };

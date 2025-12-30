@@ -150,10 +150,55 @@ export async function deleteGeneratedContent(req, res) {
   }
 }
 
+/**
+ * POST /api/generate/:id/image
+ * Generate image for existing content
+ */
+export async function generateImage(req, res) {
+  try {
+    const { id } = req.params;
+    const options = req.body || {};
+
+    console.log(`\n🎨 Starting image generation for content: ${id}`);
+
+    const content = await generationService.generateImageForContent(id, options);
+
+    res.json({
+      success: true,
+      message: 'Image generated successfully',
+      content
+    });
+
+  } catch (error) {
+    console.error('Error generating image:', error);
+
+    // Handle specific errors
+    if (error.message.includes('not found')) {
+      return res.status(404).json({
+        success: false,
+        error: error.message
+      });
+    }
+
+    if (error.message.includes('API key')) {
+      return res.status(500).json({
+        success: false,
+        error: 'OpenAI API key not configured. Please check environment variables.'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}
+
 export default {
   generateContent,
   getGeneratedContents,
   getGeneratedContentById,
   updateGeneratedContent,
-  deleteGeneratedContent
+  deleteGeneratedContent,
+  generateImage
 };

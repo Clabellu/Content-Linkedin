@@ -18,4 +18,7 @@ router.put('/:id', generationController.updateGeneratedContent);
 // DELETE /api/generate/:id - Delete generated content
 router.delete('/:id', generationController.deleteGeneratedContent);
 
+// POST /api/generate/:id/image - Generate image for content
+router.post('/:id/image', generationController.generateImage);
+
 export default router;
