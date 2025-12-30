@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import articleRoutes from './routes/articles.js';
 
 // Load environment variables
 dotenv.config();
@@ -28,12 +29,16 @@ app.get('/api', (req, res) => {
     version: '1.0.0',
     endpoints: {
       health: '/api/health',
-      articles: '/api/articles (coming in Step 3)',
+      articles: '/api/articles',
+      articlesFetch: 'POST /api/articles/fetch',
       generate: '/api/generate (coming in Step 4)',
       schedule: '/api/schedule (coming in Step 8)'
     }
   });
 });
+
+// API Routes
+app.use('/api/articles', articleRoutes);
 
 // 404 handler
 app.use((req, res) => {

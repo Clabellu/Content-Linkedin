@@ -92,6 +92,11 @@ export const dbHelpers = {
   }
 };
 
+// Named exports for specific helpers
+export const getAllSources = dbHelpers.getAllSources;
+export const getAllArticles = dbHelpers.getAllArticles;
+export const getStats = dbHelpers.getStats;
+
 export default {
   getDb,
   closeDb,
