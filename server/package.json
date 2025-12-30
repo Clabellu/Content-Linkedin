@@ -5,19 +5,28 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "db:init": "node scripts/init-db.js",
+    "db:seed": "node scripts/seed-db.js",
+    "db:view": "node scripts/view-db.js",
+    "db:reset": "rm -f dev.db && npm run db:init && npm run db:seed",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "node prisma/seed.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "@anthropic-ai/sdk": "^0.17.1",
+    "@prisma/client": "^5.10.2",
+    "better-sqlite3": "^12.5.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "@prisma/client": "^5.10.2",
-    "@anthropic-ai/sdk": "^0.17.1",
+    "express": "^4.18.2",
+    "node-cron": "^3.0.3",
     "openai": "^4.28.0",
     "rss-parser": "^3.13.0",
-    "node-cron": "^3.0.3",
     "winston": "^3.11.0"
   },
   "devDependencies": {
