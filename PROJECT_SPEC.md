@@ -1,8 +1,8 @@
 # 📱 LinkedIn Content Automation App - Project Specification
 
 > **Versione**: 1.0  
-> **Data**: Dicembre 2024  
-> **Autore**: [Your Name]  
+> **Data**: Dicembre 2025 
+> **Autore**: Claudio Bellucci  
 > **Scopo**: Documento di specifica per sviluppo con Claude Code
 
 ---
